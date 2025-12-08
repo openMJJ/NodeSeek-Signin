@@ -5,18 +5,24 @@ on:
     branches:
       - main
   schedule:
-    - cron: '00 16 * * *'  # 北京时间 00:00 (UTC+8)，对应UTC时间 16:00
+    - cron: '00 16 * * *'  # UTC 16:00 触发 = 北京时间 00:00
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: write  # 添加写入Actions变量的权限
+  actions: write
 
 jobs:
   run-nodeseek-sign:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 随机延迟 0-7200 秒（0~2小时）
+        run: |
+          DELAY=$(( RANDOM % 7200 ))
+          echo "随机延迟 $DELAY 秒（约 $((DELAY/60)) 分钟）"
+          sleep $DELAY
+
       - name: 检出代码仓库
         uses: actions/checkout@v3
       
@@ -29,14 +35,10 @@ jobs:
         run: |
           pip install curl_cffi requests --upgrade
 
-
       - name: 运行签到脚本
         env:
-          # 基本账号
           USER: ${{ secrets.USER }}
           PASS: ${{ secrets.PASS }}
-          
-          # 额外账号1-5
           USER1: ${{ secrets.USER1 }}
           PASS1: ${{ secrets.PASS1 }}
           USER2: ${{ secrets.USER2 }}
@@ -47,20 +49,16 @@ jobs:
           PASS4: ${{ secrets.PASS4 }}
           USER5: ${{ secrets.USER5 }}
           PASS5: ${{ secrets.PASS5 }}
-          
-          # Cookie配置
+
           NS_COOKIE: ${{ vars.NS_COOKIE || secrets.NS_COOKIE }}
-          
-          # 验证码配置
+
           SOLVER_TYPE: ${{ secrets.SOLVER_TYPE }}
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
           CLIENTT_KEY: ${{ secrets.CLIENTT_KEY }}
-          
-          # GitHub API配置
+
           GH_PAT: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          
-          # 通知推送配置
+
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_USER_ID: ${{ secrets.TG_USER_ID }}
           TG_THREAD_ID: ${{ secrets.TG_THREAD_ID }}
