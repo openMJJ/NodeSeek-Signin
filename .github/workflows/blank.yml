@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 随机延迟 0-7200 秒（0~2小时）
+      - name: 随机延迟 0-1800 秒（0~30分钟）
         run: |
-          DELAY=$(( RANDOM % 7200 ))
+          DELAY=$(( RANDOM % 1800 ))
           echo "随机延迟 $DELAY 秒（约 $((DELAY/60)) 分钟）"
           sleep $DELAY
 
